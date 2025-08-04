@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const { GlobalErrorHandler } = require("./utilities/GlobalErrorHandler");
 const app = express();
-const apiVersion = process.env.API_VERSION || "/api/v1";
+const apiVersion = process.env.BASE_URL || "/api/v1";
 
 // Middleware
 app.use(cors());
@@ -12,14 +13,9 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 // Routes
+app.use(apiVersion, require("./routes/index"));
 
 // Error hendling middleware
-app.use((error, req, res, next) => {
-  console.log("error from global error middleware", error);
-  res.status(error.statusCode || 500).json({
-    message: error.message || "Something went wrong",
-    success: false,
-    errors: error.errors || [],
-  });
-});
+app.use(GlobalErrorHandler);
+
 module.exports = app;

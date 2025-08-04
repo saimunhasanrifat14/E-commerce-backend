@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const { Schema, Types } = mongoose;
 
@@ -20,7 +21,6 @@ const userSchema = new Schema({
     type: String,
     trim: true,
     unique: true,
-    required: true,
   },
   password: {
     type: String,
@@ -112,4 +112,19 @@ const userSchema = new Schema({
   isActive: Boolean,
 });
 
+// schema middleware
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const saltPassword = await bcrypt.hash(this.password, 10);
+    this.password = saltPassword;
+  }
+  next();
+});
+userSchema.pre("save", async function (next) {
+  const findUser = await this.constructor.findOne({ email: this.email });
+  if (findUser && findUser._id.toString() !== this._id.toString()) {
+    throw new customError(400, "User already Exist try anther email!");
+  }
+  next();
+});
 module.exports = mongoose.model("User", userSchema);
