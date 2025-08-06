@@ -2,7 +2,7 @@ const Joi = require("joi");
 const { CustomError } = require("../utilities/CustomError");
 
 const userSchema = Joi.object({
-  firstName: Joi.string().trim().required().messages({
+  firstName: Joi.string().trim().messages({
     "any.required": "First name is required",
     "string.empty": "First name cannot be empty",
     "name.trim": "Name fill with extra space",
@@ -16,10 +16,22 @@ const userSchema = Joi.object({
       "string.empty": "Email cannot be empty",
       "string.pattern": "Email is not valid",
     }),
+    phoneNumber: Joi.string()
+    .optional()
+    .trim()
+    .pattern(/^(?:\+880|880|0)1[3-9]\d{8}$/)
+    .messages({
+      "string.pattern.base":
+        "Phone number must be a valid Bangladeshi number (e.g. 01XXXXXXXXX, 8801XXXXXXXXX, or +8801XXXXXXXXX)",
+      "string.base": "Phone number must be a string",
+      "string.empty": "Phone number cannot be empty",
+    }),
   password: Joi.string()
     .trim()
     .required()
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    .pattern(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
     .messages({
       "any.required": "Password is required",
       "string.empty": "Password cannot be empty",
