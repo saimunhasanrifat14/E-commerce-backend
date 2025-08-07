@@ -3,6 +3,7 @@ const { AsyncHandler } = require("../utilities/AsyncHandler");
 const { APIResponse } = require("../utilities/APIResponse");
 const { CustomError } = require("../utilities/CustomError");
 const { validateUser } = require("../validation/user.validation");
+const sendEmail = require("../helpers/email.helper");
 
 exports.register = AsyncHandler(async (req, res) => {
   // validate user data
@@ -16,6 +17,9 @@ exports.register = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new CustomError(500, "Registration failed try again!");
   }
+  // send email to user
+  await sendEmail(user.email, "Verify your email");
+  
   // send response to client
   return APIResponse.success(res, 200, "User created successfully", user);
 });
