@@ -107,13 +107,21 @@ const userSchema = new Schema({
     },
   ],
   newsLetterSubscribe: Boolean,
-  resetPasswordOtp: Number,
-  resetPasswordExpireTime: Date,
+  Otp: Number,
+  OtpExpireTime: Date,
   twoFactorEnabled: Boolean,
   isBlocked: Boolean,
   refreshToken: {
     type: String,
     trim: true,
+  },
+  resetToken: {
+    type: String,
+    default: null,
+  },
+  resetTokenExpire: {
+    type: Date,
+    default: null,
   },
   isActive: Boolean,
 });

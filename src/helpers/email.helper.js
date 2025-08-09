@@ -12,12 +12,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = async (to, subject, code, expireTime) => {
+const sendEmail = async (to, subject, template) => {
   const mailOptions = {
     from: "saimunhasanrifat14@gmail.com",
     to,
     subject,
-    html: registerEmailTemplate(code, expireTime),
+    html: template,
   };
 
   try {
