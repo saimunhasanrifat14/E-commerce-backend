@@ -83,6 +83,12 @@ exports.login = AsyncHandler(async (req, res) => {
   });
 });
 
+// logout
+exports.logout = AsyncHandler(async (req, res) => {
+  res.clearCookie("refreshToken");
+  return APIResponse.success(res, 200, "Logout successfully");
+});
+
 // verify email
 exports.verifyEmail = AsyncHandler(async (req, res) => {
   const { Otp } = req.body;
