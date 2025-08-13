@@ -86,6 +86,9 @@ exports.login = AsyncHandler(async (req, res) => {
 // logout
 exports.logout = AsyncHandler(async (req, res) => {
   res.clearCookie("refreshToken");
+  const user = await User.findById(req.user._id);
+  user.refreshToken = null;
+  await user.save();
   return APIResponse.success(res, 200, "Logout successfully");
 });
 
@@ -148,7 +151,7 @@ exports.forgotPassword = AsyncHandler(async (req, res) => {
   if (!user) {
     throw new CustomError(400, "User not found");
   }
-  // unique reset token 
+  // unique reset token
   const resetToken = crypto
     .createHash("sha256")
     .update(crypto.randomInt(100000, 999999))
