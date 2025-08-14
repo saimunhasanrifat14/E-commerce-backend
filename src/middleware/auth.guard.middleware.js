@@ -1,9 +1,8 @@
 const User = require("../models/user.model");
 const { CustomError } = require("../utilities/CustomError");
 const jwt = require("jsonwebtoken");
-const { AsyncHandler } = require("../utilities/AsyncHandler");
 
-exports.authGuard = AsyncHandler(async (req, res, next) => {
+exports.authGuard = async (req, res, next) => {
   const { refreshToken } = req.cookies;
   if (!refreshToken) {
     throw new CustomError(401, "Unauthorized");
@@ -19,4 +18,4 @@ exports.authGuard = AsyncHandler(async (req, res, next) => {
     req.user = user;
     next();
   }
-});
+};

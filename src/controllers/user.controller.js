@@ -92,6 +92,15 @@ exports.logout = AsyncHandler(async (req, res) => {
   return APIResponse.success(res, 200, "Logout successfully");
 });
 
+// get user
+exports.getUser = AsyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new CustomError(404, "User not found");
+  }
+  return APIResponse.success(res, 200, "User fetched successfully", user);
+});
+
 // verify email
 exports.verifyEmail = AsyncHandler(async (req, res) => {
   const { Otp } = req.body;
@@ -242,3 +251,4 @@ exports.generateAccessToken = AsyncHandler(async (req, res) => {
     email: user.email,
   });
 });
+
