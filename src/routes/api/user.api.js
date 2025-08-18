@@ -4,7 +4,7 @@ const {
   register,
   login,
   logout,
-  verifyEmail,
+  verifyUser,
   resendOtp,
   forgotPassword,
   resetPassword,
@@ -16,7 +16,7 @@ router.route("/registation").post(register);
 router.route("/login").post(login);
 router.route("/logout").post(authGuard, logout);
 router.route("/get-user").get(authGuard, getUser);
-router.route("/verify-email").post(verifyEmail);
+router.route("/verify-user").post(verifyUser);
 router.route("/resend-otp").post(resendOtp);
 router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password").post(resetPassword);

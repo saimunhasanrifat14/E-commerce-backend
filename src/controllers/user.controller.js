@@ -9,14 +9,24 @@ const {
   registerEmailTemplate,
   forgotPasswordEmailTemplate,
 } = require("../template/Email.tamplate");
+const { smsSend } = require("../helpers/sms.helpers");
 
 exports.register = AsyncHandler(async (req, res) => {
   // validate user data
   const value = await validateUser(req);
 
   // save user in database
-  const { firstName, email, password } = value;
-  const user = await new User({ firstName, email, password }).save();
+  const { firstName, email, phoneNumber, password } = value;
+
+  if (!email && !phoneNumber) {
+    throw new CustomError(400, "Email or Phone number is required");
+  }
+  const user = await new User({
+    firstName,
+    email: email || null,
+    phoneNumber: phoneNumber || null,
+    password,
+  }).save();
 
   // check user is created or not
   if (!user) {
@@ -32,12 +42,19 @@ exports.register = AsyncHandler(async (req, res) => {
   user.OtpExpireTime = expireTime;
   await user.save();
 
-  // create template
-  const template = registerEmailTemplate(Otp, expireTime);
+  if (email) {
+    const template = registerEmailTemplate(Otp, expireTime);
+    await sendEmail(user.email, "Verify your email", template);
+  }
 
-  // send email to user
-  await sendEmail(user.email, "Verify your email", template);
-
+  if (phoneNumber) {
+    const smsbody = `Hi ${user.firstName}, complete your registration using this Otp: ${Otp} This Otp will expire in ${expireTime}.`;
+    const smsInfo = await smsSend(phoneNumber, smsbody);
+    if (smsInfo.response_code !== 202) {
+      console.log("Sms not send", smsInfo);
+    }
+  }
+  
   // send response to client
   return APIResponse.success(res, 200, "User created successfully", user);
 });
@@ -102,7 +119,7 @@ exports.getUser = AsyncHandler(async (req, res) => {
 });
 
 // verify email
-exports.verifyEmail = AsyncHandler(async (req, res) => {
+exports.verifyUser = AsyncHandler(async (req, res) => {
   const { Otp } = req.body;
   // check Otp is provided or not
   if (!Otp) {
@@ -116,7 +133,7 @@ exports.verifyEmail = AsyncHandler(async (req, res) => {
     throw new CustomError(400, "Invalid verification Otp");
   }
   // update user
-  user.isEmailVerified = true;
+  user.isUserVerified = true;
   user.Otp = null;
   user.OtpExpireTime = null;
   await user.save();
@@ -251,4 +268,3 @@ exports.generateAccessToken = AsyncHandler(async (req, res) => {
     email: user.email,
   });
 });
-

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const categoryController = require("../../controller/category.controller");
-const { authGuard } = require("../../middleware/authGuard.middleware");
+const { createCategory } = require("../../controllers/category.controller");
+const { authGuard } = require("../../middleware/auth.guard.middleware");
 
-router.route("/create-category").post(authGuard, categoryController.createCategory);
+router.route("/create-category").post(authGuard, createCategory);
 
 module.exports = router;
