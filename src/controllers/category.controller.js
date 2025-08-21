@@ -19,3 +19,42 @@ exports.createCategory = AsyncHandler(async (req, res) => {
   // send response
   APIResponse(res, 201, category, "Category created successfully!");
 });
+
+// get all categories
+exports.getAllCategories = AsyncHandler(async (req, res) => {
+  const categories = await Category.find();
+  if (!categories) {
+    throw new CustomError(404, "Categories not found");
+  }
+  APIResponse(res, 200, categories, "Categories fetched successfully!");
+});
+
+// get single category
+exports.getSingleCategory = AsyncHandler(async (req, res) => {
+  const category = await Category.findById(req.params.id);
+  if (!category) {
+    throw new CustomError(404, "Category not found");
+  }
+  APIResponse(res, 200, category, "Category fetched successfully!");
+});
+
+// update category
+exports.updateCategory = AsyncHandler(async (req, res) => {
+  const category = await Category.findByIdAndUpdate(req.params.id);
+  if (!category) {
+    throw new CustomError(404, "Category not found");
+  }
+  category.name = req.body.name;
+  category.image = req.file.path;
+  await category.save();
+  APIResponse(res, 200, category, "Category updated successfully!");
+});
+
+// delete category
+exports.deleteCategory = AsyncHandler(async (req, res) => {
+  const category = await Category.findByIdAndDelete(req.params.id);
+  if (!category) {
+    throw new CustomError(404, "Category not found");
+  }
+  APIResponse(res, 200, category, "Category deleted successfully!");
+});
