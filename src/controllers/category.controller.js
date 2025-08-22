@@ -29,9 +29,9 @@ exports.getAllCategories = AsyncHandler(async (req, res) => {
   APIResponse(res, 200, categories, "Categories fetched successfully!");
 });
 
-// get single category
+// get single category by slug
 exports.getSingleCategory = AsyncHandler(async (req, res) => {
-  const category = await Category.findById(req.params.id);
+  const category = await Category.findOne({ slug: req.params.slug });
   if (!category) {
     throw new CustomError(404, "Category not found");
   }
@@ -40,7 +40,7 @@ exports.getSingleCategory = AsyncHandler(async (req, res) => {
 
 // update category
 exports.updateCategory = AsyncHandler(async (req, res) => {
-  const category = await Category.findByIdAndUpdate(req.params.id);
+  const category = await Category.findByIdAndUpdate(req.params.slug);
   if (!category) {
     throw new CustomError(404, "Category not found");
   }
@@ -52,7 +52,7 @@ exports.updateCategory = AsyncHandler(async (req, res) => {
 
 // delete category
 exports.deleteCategory = AsyncHandler(async (req, res) => {
-  const category = await Category.findByIdAndDelete(req.params.id);
+  const category = await Category.findByIdAndDelete(req.params.slug);
   if (!category) {
     throw new CustomError(404, "Category not found");
   }
