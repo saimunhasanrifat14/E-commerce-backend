@@ -3,13 +3,18 @@ const { AsyncHandler } = require("../utilities/AsyncHandler");
 const { APIResponse } = require("../utilities/APIResponse");
 const { CustomError } = require("../utilities/CustomError");
 const { validateCategory } = require("../validation/category.validation");
+const { uploadImage, deleteImage } = require("../helpers/cloudinary");
 
 exports.createCategory = AsyncHandler(async (req, res) => {
   // validate category data
   const value = await validateCategory(req);
+  const { name, image } = value;
+
+  // upload image
+  const uploadedImage = await uploadImage(image.path);
 
   // save category in database
-  const category = await new Category(value).save();
+  const category = await new Category({ name, image: uploadedImage }).save();
 
   // check category is created or not
   if (!category) {
@@ -45,7 +50,11 @@ exports.updateCategory = AsyncHandler(async (req, res) => {
     throw new CustomError(404, "Category not found");
   }
   category.name = req.body.name;
-  category.image = req.file.path;
+  if (req.file) {
+    await deleteImage(category.image.public_id);
+    const uploadedImage = await uploadImage(req.file.path);
+    category.image = uploadedImage;
+  }
   await category.save();
   APIResponse(res, 200, category, "Category updated successfully!");
 });
@@ -56,5 +65,6 @@ exports.deleteCategory = AsyncHandler(async (req, res) => {
   if (!category) {
     throw new CustomError(404, "Category not found");
   }
+  await deleteImage(category.image.public_id);
   APIResponse(res, 200, category, "Category deleted successfully!");
 });
