@@ -3,6 +3,7 @@ const { AsyncHandler } = require("../utilities/AsyncHandler");
 const { APIResponse } = require("../utilities/APIResponse");
 const { CustomError } = require("../utilities/CustomError");
 const { validateSubCategory } = require("../validation/subcategroy.validation");
+const CategoryModel = require("../models/category.model");
 
 // create subcatagory
 exports.createSubCategory = AsyncHandler(async (req, res) => {
@@ -13,17 +14,26 @@ exports.createSubCategory = AsyncHandler(async (req, res) => {
   if (isSubCategoryExist) {
     throw new CustomError(404, "SubCategory already exist");
   }
+
   // save subcategory in database
   const subCategory = await new SubCategory({ name, category }).save();
   if (!subCategory) {
     throw new CustomError(500, "SubCategory creation failed try again!");
   }
+
+  //  update category subcategory field
+  const updateCategory = await CategoryModel.findOneAndUpdate(
+    { _id: value.category },
+    { $push: { subCategory: subCategory._id } },
+    { new: true }
+  );
+
   APIResponse(res, 201, subCategory, "SubCategory created successfully!");
 });
 
 // get all subcategories
 exports.getAllSubCategories = AsyncHandler(async (req, res) => {
-  const subCategories = await SubCategory.find();
+  const subCategories = await SubCategory.find({});
   if (!subCategories) {
     throw new CustomError(404, "SubCategories not found");
   }
@@ -32,9 +42,65 @@ exports.getAllSubCategories = AsyncHandler(async (req, res) => {
 
 // get single subcategory by slug
 exports.getSingleSubCategory = AsyncHandler(async (req, res) => {
-  const subCategory = await SubCategory.findOne({ slug: req.params.slug });
+  const { slug } = req.params;
+  const subCategory = await SubCategory.findOne({ slug });
   if (!subCategory) {
     throw new CustomError(404, "SubCategory not found");
   }
   APIResponse(res, 200, subCategory, "SubCategory fetched successfully!");
+});
+
+// update subcategory
+exports.updateSubcategory = AsyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const subCategory = await SubCategory.findOneAndUpdate({ slug });
+  if (!subCategory) {
+    throw new CustomError(404, "SubCategory not found");
+  }
+  // update subcategory
+  if (req.body.category) {
+    // add subcategory into category
+    const updateCategory = await CategoryModel.findOneAndUpdate(
+      { _id: req.body.category },
+      { $push: { subCategory: subCategory._id } },
+      { new: true }
+    );
+    if (!updateCategory) {
+      throw new CustomError(404, "Category not found");
+    }
+    // remove subcategory from category
+    const updateSubCategory = await CategoryModel.findOneAndUpdate(
+      { _id: subCategory.category },
+      { $pull: { subCategory: subCategory._id } },
+      { new: true }
+    );
+    if (!updateSubCategory) {
+      throw new CustomError(404, "SubCategory not found");
+    }
+    subCategory.name = req.body.name;
+    subCategory.category = req.body.category || subCategory.category;
+    await subCategory.save();
+  }
+  APIResponse(res, 200, subCategory, "SubCategory updated successfully!");
+});
+
+// delete subcategory
+exports.deleteSubcategory = AsyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const subCategory = await SubCategory.findOne({ slug });
+  if (!subCategory) {
+    throw new CustomError(404, "SubCategory not found");
+  }
+  // remove subcategory from category
+  const updateSubCategory = await CategoryModel.findOneAndUpdate(
+    { _id: subCategory.category },
+    { $pull: { subCategory: subCategory._id } },
+    { new: true }
+  );
+  if (!updateSubCategory) {
+    throw new CustomError(404, "SubCategory not found");
+  }
+  // delete subcategory
+  await SubCategory.deleteOne({ _id: subCategory._id });
+  APIResponse(res, 200, subCategory, "SubCategory deleted successfully!");
 });
