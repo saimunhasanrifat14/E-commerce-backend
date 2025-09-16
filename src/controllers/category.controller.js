@@ -27,7 +27,30 @@ exports.createCategory = AsyncHandler(async (req, res) => {
 
 // get all categories
 exports.getAllCategories = AsyncHandler(async (req, res) => {
-  const categories = await Category.find();
+  const categories = await Category.find().populate("subCategory");
+  // const alllcategory = await categoryModel.aggregate([
+  //   {
+  //     $lookup: {
+  //       from: "subcategories",
+  //       localField: "subCategory",
+  //       foreignField: "_id",
+  //       as: "subCategory",
+  //     },
+  //   },
+  //   {
+  //     $project: {
+  //       name: 1,
+  //       image: 1,
+  //       isActive: 1,
+  //       createdAt: 1,
+  //       slug: 1,
+  //       subCategory: 1,
+  //     },
+  //   },
+  //   {
+  //     $sort: { createdAt: -1 },
+  //   },
+  // ]);
   if (!categories) {
     throw new CustomError(404, "Categories not found");
   }

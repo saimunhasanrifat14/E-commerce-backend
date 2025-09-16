@@ -5,5 +5,6 @@ router.use("/auth", require("./api/user.api"));
 router.use("/category", require("./api/category.api"));
 router.use("/subcategory", require("./api/subcategory.api"));
 router.use("/brand", require("./api/brand.api"));
+router.use("/discount", require("./api/discount.api"));
 
 module.exports = router;
