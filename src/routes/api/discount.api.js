@@ -4,10 +4,12 @@ const {
   createDiscount,
   getAllDiscount,
   getSingleDiscount,
+  updateDiscount,
 } = require("../../controllers/discount.controller");
 
 router.route("/create-discount").post(createDiscount);
 router.route("/get-all-discount").get(getAllDiscount);
 router.route("/get-single-discount/:slug").get(getSingleDiscount);
+router.route("/update-discount/:slug").put(updateDiscount);
 
 module.exports = router;
