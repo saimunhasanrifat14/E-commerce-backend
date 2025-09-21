@@ -69,12 +69,12 @@ exports.updateSubcategory = AsyncHandler(async (req, res) => {
       throw new CustomError(404, "Category not found");
     }
     // remove subcategory from category
-    const updateSubCategory = await CategoryModel.findOneAndUpdate(
+    const updatedSubCategory = await CategoryModel.findOneAndUpdate(
       { _id: subCategory.category },
       { $pull: { subCategory: subCategory._id } },
       { new: true }
     );
-    if (!updateSubCategory) {
+    if (!updatedSubCategory) {
       throw new CustomError(404, "SubCategory not found");
     }
     subCategory.name = req.body.name;
@@ -92,12 +92,12 @@ exports.deleteSubcategory = AsyncHandler(async (req, res) => {
     throw new CustomError(404, "SubCategory not found");
   }
   // remove subcategory from category
-  const updateSubCategory = await CategoryModel.findOneAndUpdate(
+  const updatedSubCategory = await CategoryModel.findOneAndUpdate(
     { _id: subCategory.category },
     { $pull: { subCategory: subCategory._id } },
     { new: true }
   );
-  if (!updateSubCategory) {
+  if (!updatedSubCategory) {
     throw new CustomError(404, "SubCategory not found");
   }
   // delete subcategory

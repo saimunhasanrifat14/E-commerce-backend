@@ -22,7 +22,7 @@ exports.createCategory = AsyncHandler(async (req, res) => {
   }
 
   // send response
-  APIResponse(res, 201, category, "Category created successfully!");
+  APIResponse.success(res, 201, category, "Category created successfully!");
 });
 
 // get all categories
@@ -54,7 +54,7 @@ exports.getAllCategories = AsyncHandler(async (req, res) => {
   if (!categories) {
     throw new CustomError(404, "Categories not found");
   }
-  APIResponse(res, 200, categories, "Categories fetched successfully!");
+  APIResponse.success(res, 200, categories, "Categories fetched successfully!");
 });
 
 // get single category by slug
@@ -63,31 +63,33 @@ exports.getSingleCategory = AsyncHandler(async (req, res) => {
   if (!category) {
     throw new CustomError(404, "Category not found");
   }
-  APIResponse(res, 200, category, "Category fetched successfully!");
+  APIResponse.success(res, 200, category, "Category fetched successfully!");
 });
 
 // update category
 exports.updateCategory = AsyncHandler(async (req, res) => {
-  const category = await Category.findByIdAndUpdate(req.params.slug);
+  const category = await Category.findOne({ slug: req.params.slug });
   if (!category) {
     throw new CustomError(404, "Category not found");
   }
-  category.name = req.body.name;
+  if (req.body.name) {
+    category.name = req.body.name;
+  }
   if (req.file) {
     await deleteImage(category.image.public_id);
     const uploadedImage = await uploadImage(req.file.path);
     category.image = uploadedImage;
   }
   await category.save();
-  APIResponse(res, 200, category, "Category updated successfully!");
+  APIResponse.success(res, 200, category, "Category updated successfully!");
 });
 
 // delete category
 exports.deleteCategory = AsyncHandler(async (req, res) => {
-  const category = await Category.findByIdAndDelete(req.params.slug);
+  const category = await Category.findOneAndDelete({ slug: req.params.slug });
   if (!category) {
     throw new CustomError(404, "Category not found");
   }
   await deleteImage(category.image.public_id);
-  APIResponse(res, 200, category, "Category deleted successfully!");
+  APIResponse.success(res, 200, category, "Category deleted successfully!");
 });

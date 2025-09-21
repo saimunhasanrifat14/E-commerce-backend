@@ -11,12 +11,11 @@ const {
   getUser,
   verifyOtp,
 } = require("../../controllers/user.controller");
-const { authGuard } = require("../../middleware/auth.guard.middleware");
 
 router.route("/registation").post(register);
 router.route("/login").post(login);
-router.route("/logout").post(authGuard, logout);
-router.route("/get-user").get(authGuard, getUser);
+router.route("/logout").post(logout);
+router.route("/get-user").get(getUser);
 router.route("/verify-user").post(verifyUser);
 router.route("/resend-otp").post(resendOtp);
 router.route("/forgot-password").post(forgotPassword);

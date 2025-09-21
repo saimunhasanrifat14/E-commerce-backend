@@ -10,11 +10,7 @@ const categorySchema = new Schema(
       required: true,
       trim: true,
     },
-    image: {
-      type: String,
-      trim: true,
-      required: true,
-    },
+    image: {},
     slug: {
       type: String,
       trim: true,
@@ -53,10 +49,7 @@ categorySchema.pre("save", async function (next) {
 // check already exist this cateogry or not
 categorySchema.pre("save", async function (next) {
   const findCategory = await this.constructor.findOne({ slug: this.slug });
-  if (
-    findCategory &&
-    findCategory._id.toString() !== this._id.toString()
-  ) {
+  if (findCategory && findCategory._id.toString() !== this._id.toString()) {
     throw new CustomError(400, "Category already Exist try anther name!");
   }
   next();

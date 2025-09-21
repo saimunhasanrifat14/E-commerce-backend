@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const { customError } = require("../utils/customError");
+const { CustomError } = require("../utilities/CustomError");
 
 // Define Discount Validation Schema
 const discountValidationSchema = Joi.object({

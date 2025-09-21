@@ -7,14 +7,12 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../../controllers/category.controller");
-const { authGuard } = require("../../middleware/auth.guard.middleware");
 const { upload } = require("../../middleware/multer.middleware");
 
 router
   .route("/create-category")
   .post(
     upload.fields([{ name: "image", maxCount: 1 }]),
-    authGuard,
     createCategory
   );
 router.route("/get-all-categories").get(getAllCategories);
@@ -23,9 +21,8 @@ router
   .route("/update-category/:slug")
   .put(
     upload.fields([{ name: "image", maxCount: 1 }]),
-    authGuard,
     updateCategory
   );
-router.route("/delete-category/:slug").delete(authGuard, deleteCategory);
+router.route("/delete-category/:slug").delete(deleteCategory);
 
 module.exports = router;

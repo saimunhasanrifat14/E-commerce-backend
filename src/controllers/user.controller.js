@@ -151,9 +151,9 @@ exports.getUser = AsyncHandler(async (req, res) => {
 
 // verify email
 exports.verifyUser = AsyncHandler(async (req, res) => {
-  const { otp, email, phoneNumber } = req.body;
+  const { Otp, email, phoneNumber } = req.body;
 
-  if (!otp || (!email && !phoneNumber)) {
+  if (!Otp || (!email && !phoneNumber)) {
     throw new CustomError(400, "Otp and email/phone are required");
   }
 
@@ -166,7 +166,7 @@ exports.verifyUser = AsyncHandler(async (req, res) => {
   }
 
   // check otp validity
-  if (user.Otp !== otp || user.OtpExpireTime < Date.now()) {
+  if (user.Otp !== parseInt(Otp) || user.OtpExpireTime < Date.now()) {
     throw new CustomError(400, "Otp invalid or expired");
   }
 
@@ -248,6 +248,8 @@ exports.forgotPassword = AsyncHandler(async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      resetToken: user.resetToken,
+      resetTokenExpire: user.resetTokenExpire,
     });
   }
   if (phoneNumber) {
@@ -268,24 +270,25 @@ exports.forgotPassword = AsyncHandler(async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       phoneNumber: user.phoneNumber,
+      Otp: user.Otp,
+      OtpExpireTime: user.OtpExpireTime,
     });
   }
 });
 
 // verify otp
 exports.verifyOtp = AsyncHandler(async (req, res) => {
-  const { phoneNumber, otp } = req.body;
+  const { phoneNumber, Otp } = req.body;
   const user = await User.findOne({ phoneNumber });
 
   if (!user || !user.Otp || user.OtpExpireTime < Date.now()) {
     throw new CustomError(400, "OTP invalid or expired");
   }
 
-  if (user.Otp !== parseInt(otp)) {
+  if (user.Otp !== parseInt(Otp)) {
     throw new CustomError(400, "OTP mismatch");
   }
 
-  // OTP ঠিক আছে → Temporary token issue করো
   const resetToken = crypto.randomBytes(32).toString("hex");
   user.resetToken = resetToken;
   user.resetTokenExpire = Date.now() + 5 * 60 * 1000;
