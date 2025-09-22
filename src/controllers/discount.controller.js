@@ -5,7 +5,8 @@ const { CustomError } = require("../utilities/CustomError");
 const { validateDiscount } = require("../validation/discount.validation");
 const CategoryModel = require("../models/category.model");
 const SubCategoryModel = require("../models/subcategory.model");
-const cache = require("node-cache");
+const NodeCache = require("node-cache");
+const Cache = new NodeCache();
 
 // Create Discount
 exports.createDiscount = AsyncHandler(async (req, res) => {
@@ -37,12 +38,12 @@ exports.createDiscount = AsyncHandler(async (req, res) => {
       throw new CustomError(404, "SubCategory not found");
     }
   }
-  APIResponse(res, 201, discount, "Discount created successfully!");
+  APIResponse.success(res, 201, discount, "Discount created successfully!");
 });
 
 // Get All Discount
 exports.getAllDiscount = AsyncHandler(async (req, res) => {
-  const allDiscount = cache.get("discount");
+  const allDiscount = Cache.get("discount");
   if (allDiscount == undefined) {
     const discount = await DiscountModel.find()
       .sort({ createdAt: -1 })
@@ -52,10 +53,10 @@ exports.getAllDiscount = AsyncHandler(async (req, res) => {
     if (!discount) {
       throw new CustomError(404, "Discount not found");
     }
-    cache.set("discount", JSON.stringify(discount), 60 * 60 * 24);
-    APIResponse(res, 200, discount, "Discount fetched successfully!");
+    Cache.set("discount", JSON.stringify(discount), 60 * 60 * 24);
+    APIResponse.success(res, 200, discount, "Discount fetched successfully!");
   } else {
-    APIResponse(res, 200, allDiscount, "Discount fetched successfully!");
+    APIResponse.success(res, 200, allDiscount, "Discount fetched successfully!");
   }
 });
 
@@ -68,13 +69,13 @@ exports.getSingleDiscount = AsyncHandler(async (req, res) => {
   if (!discount) {
     throw new CustomError(404, "Discount not found");
   }
-  APIResponse(res, 200, discount, "Discount fetched successfully!");
+  APIResponse.success(res, 200, discount, "Discount fetched successfully!");
 });
 
 // update discount
 exports.updateDiscount = AsyncHandler(async (req, res) => {
   const { slug } = req.params;
-  const discount = await DiscountModel.findOneAndUpdate({ slug });
+  const discount = await DiscountModel.findOne({ slug });
   if (!discount) {
     throw new CustomError(404, "Discount not found");
   }
@@ -144,5 +145,5 @@ exports.updateDiscount = AsyncHandler(async (req, res) => {
     throw new CustomError(400, "Failed to update discount");
   }
 
-  APIResponse(res, 200, discount, "Discount updated successfully!");
+  APIResponse.success(res, 200, discount, "Discount updated successfully!");
 });

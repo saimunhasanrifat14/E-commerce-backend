@@ -28,7 +28,12 @@ exports.createSubCategory = AsyncHandler(async (req, res) => {
     { new: true }
   );
 
-  APIResponse(res, 201, subCategory, "SubCategory created successfully!");
+  APIResponse.success(
+    res,
+    201,
+    "SubCategory created successfully!",
+    subCategory
+  );
 });
 
 // get all subcategories
@@ -37,7 +42,12 @@ exports.getAllSubCategories = AsyncHandler(async (req, res) => {
   if (!subCategories) {
     throw new CustomError(404, "SubCategories not found");
   }
-  APIResponse(res, 200, subCategories, "SubCategories fetched successfully!");
+  APIResponse.success(
+    res,
+    200,
+    "SubCategories fetched successfully!",
+    subCategories
+  );
 });
 
 // get single subcategory by slug
@@ -47,15 +57,23 @@ exports.getSingleSubCategory = AsyncHandler(async (req, res) => {
   if (!subCategory) {
     throw new CustomError(404, "SubCategory not found");
   }
-  APIResponse(res, 200, subCategory, "SubCategory fetched successfully!");
+  APIResponse.success(
+    res,
+    200,
+    "SubCategory fetched successfully!",
+    subCategory
+  );
 });
 
 // update subcategory
 exports.updateSubcategory = AsyncHandler(async (req, res) => {
   const { slug } = req.params;
-  const subCategory = await SubCategory.findOneAndUpdate({ slug });
+  const subCategory = await SubCategory.findOne({ slug });
   if (!subCategory) {
     throw new CustomError(404, "SubCategory not found");
+  }
+  if (req.body.name) {
+    subCategory.name = req.body.name;
   }
   // update subcategory
   if (req.body.category) {
@@ -77,11 +95,15 @@ exports.updateSubcategory = AsyncHandler(async (req, res) => {
     if (!updatedSubCategory) {
       throw new CustomError(404, "SubCategory not found");
     }
-    subCategory.name = req.body.name;
     subCategory.category = req.body.category || subCategory.category;
-    await subCategory.save();
   }
-  APIResponse(res, 200, subCategory, "SubCategory updated successfully!");
+  await subCategory.save();
+  APIResponse.success(
+    res,
+    200,
+    "SubCategory updated successfully!",
+    subCategory
+  );
 });
 
 // delete subcategory
@@ -102,5 +124,10 @@ exports.deleteSubcategory = AsyncHandler(async (req, res) => {
   }
   // delete subcategory
   await SubCategory.deleteOne({ _id: subCategory._id });
-  APIResponse(res, 200, subCategory, "SubCategory deleted successfully!");
+  APIResponse.success(
+    res,
+    200,
+    "SubCategory deleted successfully!",
+    subCategory
+  );
 });

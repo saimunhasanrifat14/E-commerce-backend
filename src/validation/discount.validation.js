@@ -53,7 +53,7 @@ exports.validateDiscount = async (req) => {
 
     // Check valid date range
     if (new Date(value.discountValidFrom) > new Date(value.discountValidTo)) {
-      throw new customError(
+      throw new CustomError(
         400,
         "Discount start date cannot be after end date."
       );
@@ -65,7 +65,7 @@ exports.validateDiscount = async (req) => {
       (!value.discountValueByPercentance ||
         value.discountValueByPercentance <= 0)
     ) {
-      throw new customError(
+      throw new CustomError(
         400,
         "You must provide either a valid discount amount or a discount percentage."
       );
@@ -75,13 +75,13 @@ exports.validateDiscount = async (req) => {
   } catch (error) {
     if (error.details) {
       console.log("Error from validateDiscount:", error.details[0].message);
-      throw new customError(
+      throw new CustomError(
         400,
         `Discount Validation Failed: ${error.details[0].message}`
       );
     } else {
       console.log("Error from validateDiscount:", error);
-      throw new customError(
+      throw new CustomError(
         400,
         `Discount Validation Failed: ${error.message}`
       );
